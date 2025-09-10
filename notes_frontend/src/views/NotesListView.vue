@@ -3,6 +3,8 @@ import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotesStore } from '@/stores/notes'
 import NoteCard from '@/components/notes/NoteCard.vue'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import ErrorAlert from '@/components/common/ErrorAlert.vue'
 
 const router = useRouter()
 const notesStore = useNotesStore()
@@ -37,15 +39,16 @@ function onDelete(id: string | number) {
       <button class="btn btn-primary" @click="goToNew">New Note</button>
     </header>
 
-    <section v-if="isLoading" class="placeholder">
-      <!-- Placeholder for Loading component -->
-      <p>Loading notes…</p>
+    <section v-if="isLoading">
+      <LoadingSpinner label="Loading notes…" />
     </section>
 
-    <section v-else-if="hasError" class="placeholder error">
-      <!-- Placeholder for Error component -->
-      <p>Error: {{ errorMsg }}</p>
-      <button class="btn" @click="notesStore.fetchNotes()">Retry</button>
+    <section v-else-if="hasError">
+      <ErrorAlert
+        :message="errorMsg || 'Something went wrong'"
+        action-label="Retry"
+        @action="notesStore.fetchNotes()"
+      />
     </section>
 
     <section v-else>
@@ -78,10 +81,6 @@ function onDelete(id: string | number) {
   padding: 1rem;
   border: 1px dashed var(--color-border);
   border-radius: 8px;
-}
-.placeholder.error {
-  border-color: #b00020;
-  color: #b00020;
 }
 .btn {
   padding: .45rem .8rem;

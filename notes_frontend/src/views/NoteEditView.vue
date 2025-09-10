@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import NoteForm from '@/components/notes/NoteForm.vue'
 import { useNotesStore } from '@/stores/notes'
 import type { NewNote, UpdateNote } from '@/types/note'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import ErrorAlert from '@/components/common/ErrorAlert.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -52,16 +54,16 @@ async function onSubmit(payload: NewNote | UpdateNote) {
       <button class="btn" @click="$router.back()">Back</button>
     </header>
 
-    <section v-if="!isCreate && loadingOne" class="placeholder">
-      <!-- Placeholder for Loading component -->
-      <p>Loading note…</p>
+    <section v-if="!isCreate && loadingOne">
+      <LoadingSpinner label="Loading note…" />
     </section>
 
-    <section v-else-if="hasError" class="placeholder error">
-      <p>Error: {{ errorMsg }}</p>
-      <button class="btn" v-if="!isCreate" @click="$router.push({ name: 'note-detail', params: { id } })">
-        Back to detail
-      </button>
+    <section v-else-if="hasError">
+      <ErrorAlert
+        :message="errorMsg || 'Something went wrong'"
+        :action-label="!isCreate ? 'Back to detail' : undefined"
+        @action="$router.push({ name: 'note-detail', params: { id } })"
+      />
     </section>
 
     <section v-else>
@@ -86,10 +88,6 @@ async function onSubmit(payload: NewNote | UpdateNote) {
   padding: 1rem;
   border: 1px dashed var(--color-border);
   border-radius: 8px;
-}
-.placeholder.error {
-  border-color: #b00020;
-  color: #b00020;
 }
 .btn {
   padding: .45rem .8rem;
